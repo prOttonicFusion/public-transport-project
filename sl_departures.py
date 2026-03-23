@@ -11,13 +11,27 @@ from datetime import datetime
 
 BASE_URL = "https://transport.integration.sl.se/v1/sites/{siteId}/departures"
 
-SITE_IDS = ["7981"]  # Arninge
+SITE_IDS = [
+    7981,  # Arninge
+    9600,  # Stockholms östra
+    9200,  # Mörby centrum
+    9638,  # Mörby station
+    9201,  # Danderyds sjukhus
+    9633,  # Roslags Näsby
+    2200,  # Roslags Näsby trafikplats
+]
+
+# TODO: add bus lines
 LINES = [28]
-MODES = ["BUS", "TRAM"]
+
+MODES = [
+    "BUS",
+    "TRAM",  # Roslagsbanan is designated as a tram
+]
 
 
 def fetch_departures(
-    site_id: str, lines: list[int] | None = None, modes: list[str] | None = None
+    site_id: int, lines: list[int] | None = None, modes: list[str] | None = None
 ):
     response = requests.get(BASE_URL.format(siteId=site_id))
     response.raise_for_status()
