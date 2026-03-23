@@ -1,1 +1,5 @@
 venv/
+
+# Data files
+*.json
+*.csv
