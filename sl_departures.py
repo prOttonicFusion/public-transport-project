@@ -11,15 +11,15 @@ from datetime import datetime
 
 BASE_URL = "https://transport.integration.sl.se/v1/sites/{siteId}/departures"
 
-SITE_IDS = [
-    7981,  # Arninge
-    9600,  # Stockholms östra
-    9200,  # Mörby centrum
-    9638,  # Mörby station
-    9201,  # Danderyds sjukhus
-    9633,  # Roslags Näsby
-    2200,  # Roslags Näsby trafikplats
-]
+SITE_IDS = {
+    7981: "Arninge",
+    9600: "Stockholms_östra",
+    9200: "Mörby_centrum",
+    9638: "Mörby_station",
+    9201: "Danderyds_sjukhus",
+    9633: "Roslags_Näsby",
+    2200: "Roslags_Näsby_trafikplats",
+}
 
 # TODO: add bus lines
 LINES = [28]
@@ -33,6 +33,8 @@ MODES = [
 def fetch_departures(
     site_id: int, lines: list[int] | None = None, modes: list[str] | None = None
 ):
+    """Fetch departures for a given site ID, optionally filtering by lines and modes."""
+
     response = requests.get(BASE_URL.format(siteId=site_id))
     response.raise_for_status()
 
@@ -52,10 +54,14 @@ def fetch_departures(
     return filtered
 
 
+# Create data directory if it doesn't exist
+os.makedirs("data", exist_ok=True)
+
+# Fetch departures data for each site
 rows = []
-for site_id in SITE_IDS:
+for site_id, site_name in SITE_IDS.items():
     data = fetch_departures(site_id=site_id, lines=LINES, modes=MODES)
-    with open(f"departures_{site_id}.json", "w") as f:
+    with open(os.path.join("data", f"departures_{site_name}.json"), "w") as f:
         json.dump(data, f, indent=2)
 
     for dep in data["departures"]:
@@ -75,18 +81,18 @@ for site_id in SITE_IDS:
                 delay = None
         rows.append(
             {
-                "site_id": site_id,
                 "line_id": line_id,
-                "transport_mode": transport_mode,
                 "scheduled_time": scheduled_time,
                 "expected_time": expected_time,
+                "transport_mode": transport_mode,
                 "delay": delay,
                 "destination": destination,
+                "site_id": site_id,
             }
         )
 
     # Create DataFrame and append to CSV
-    csv_file = f"departures_{site_id}.csv"
+    csv_file = os.path.join("data", f"departures_{site_name}.csv")
 
     df = pd.DataFrame(rows)
     if os.path.exists(csv_file):
