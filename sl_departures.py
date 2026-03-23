@@ -38,8 +38,6 @@ def fetch_departures(
     return filtered
 
 
-CSV_FILE = "departures_data.csv"
-
 rows = []
 for site_id in SITE_IDS:
     data = fetch_departures(site_id=site_id, lines=LINES, modes=MODES)
@@ -73,9 +71,11 @@ for site_id in SITE_IDS:
             }
         )
 
-# Create DataFrame and append to CSV
-df = pd.DataFrame(rows)
-if os.path.exists(CSV_FILE):
-    df.to_csv(CSV_FILE, mode="a", header=False, index=False)
-else:
-    df.to_csv(CSV_FILE, mode="w", header=True, index=False)
+    # Create DataFrame and append to CSV
+    csv_file = f"departures_{site_id}.csv"
+
+    df = pd.DataFrame(rows)
+    if os.path.exists(csv_file):
+        df.to_csv(csv_file, mode="a", header=False, index=False)
+    else:
+        df.to_csv(csv_file, mode="w", header=True, index=False)
