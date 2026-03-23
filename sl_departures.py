@@ -1,0 +1,81 @@
+import requests
+import json
+import pandas as pd
+import os
+from datetime import datetime
+
+# SL RealTime Departures 4 API endpoint
+# https://www.trafiklab.se/api/our-apis/sl/transport/#/default/Departures
+
+# Delay = scheduled time - expected time
+
+BASE_URL = "https://transport.integration.sl.se/v1/sites/{siteId}/departures"
+
+SITE_IDS = ["7981"]  # Arninge
+LINES = [28]
+MODES = ["BUS", "TRAM"]
+
+
+def fetch_departures(
+    site_id: str, lines: list[int] | None = None, modes: list[str] | None = None
+):
+    response = requests.get(BASE_URL.format(siteId=site_id))
+    response.raise_for_status()
+
+    raw = response.json()
+
+    filtered = {"departures": []}
+
+    for departure in raw.get("departures", []):
+        if lines and departure["line"]["id"] not in lines:
+            continue
+
+        if modes and departure["line"]["transport_mode"] not in modes:
+            continue
+
+        filtered["departures"].append(departure)
+
+    return filtered
+
+
+CSV_FILE = "departures_data.csv"
+
+rows = []
+for site_id in SITE_IDS:
+    data = fetch_departures(site_id=site_id, lines=LINES, modes=MODES)
+    with open(f"departures_{site_id}.json", "w") as f:
+        json.dump(data, f, indent=2)
+
+    for dep in data["departures"]:
+        line_id = dep["line"]["id"]
+        transport_mode = dep["line"]["transport_mode"]
+        destination = dep["destination"]
+        scheduled_time = dep.get("scheduled")
+        expected_time = dep.get("expected")
+        # Parse times and calculate delay in seconds (if both times exist)
+        delay = None
+        if scheduled_time and expected_time:
+            try:
+                t1 = datetime.fromisoformat(scheduled_time)
+                t2 = datetime.fromisoformat(expected_time)
+                delay = (t2 - t1).total_seconds()
+            except Exception:
+                delay = None
+        rows.append(
+            {
+                "site_id": site_id,
+                "line_id": line_id,
+                "transport_mode": transport_mode,
+                "scheduled_time": scheduled_time,
+                "expected_time": expected_time,
+                "delay": delay,
+                "destination": destination,
+            }
+        )
+
+# Create DataFrame and append to CSV
+df = pd.DataFrame(rows)
+if os.path.exists(CSV_FILE):
+    df.to_csv(CSV_FILE, mode="a", header=False, index=False)
+else:
+    df.to_csv(CSV_FILE, mode="w", header=True, index=False)
