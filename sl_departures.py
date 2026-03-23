@@ -58,12 +58,12 @@ def fetch_departures(
 os.makedirs("data", exist_ok=True)
 
 # Fetch departures data for each site
-rows = []
 for site_id, site_name in SITE_IDS.items():
     data = fetch_departures(site_id=site_id, lines=LINES, modes=MODES)
     with open(os.path.join("data", f"departures_{site_name}.json"), "w") as f:
         json.dump(data, f, indent=2)
 
+    rows = []  # Reset rows for each site
     for dep in data["departures"]:
         line_id = dep["line"]["id"]
         transport_mode = dep["line"]["transport_mode"]
@@ -88,14 +88,20 @@ for site_id, site_name in SITE_IDS.items():
                 "delay": delay,
                 "destination": destination,
                 "site_id": site_id,
+                "journey_id": dep.get("journey").get("id"),
             }
         )
 
-    # Create DataFrame and append to CSV
+    # Create DataFrame and deduplicate based on journey_id, keeping newest
     csv_file = os.path.join("data", f"departures_{site_name}.csv")
+    df_new = pd.DataFrame(rows)
 
-    df = pd.DataFrame(rows)
     if os.path.exists(csv_file):
-        df.to_csv(csv_file, mode="a", header=False, index=False)
+        df_existing = pd.read_csv(csv_file)
+        df_combined = pd.concat([df_existing, df_new], ignore_index=True)
+
+        # Remove duplicates based on journey_id, keeping the last (newest) entry from df_new
+        df_combined = df_combined.drop_duplicates(subset=["journey_id"], keep="last")
+        df_combined.to_csv(csv_file, index=False)
     else:
-        df.to_csv(csv_file, mode="w", header=True, index=False)
+        df_new.to_csv(csv_file, index=False)
