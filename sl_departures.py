@@ -21,7 +21,7 @@ SITE_IDS = {
     2200: "Roslags_Näsby_trafikplats",
 }
 
-# TODO: add bus lines
+# TODO: add bus lines test
 LINES = [28]
 
 MODES = [
