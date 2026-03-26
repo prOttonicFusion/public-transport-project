@@ -21,6 +21,37 @@ SITE_IDS = {
     2200: "Roslags_Näsby_trafikplats",
 }
 
+# Roslagsbanan stations 
+ROSLAGSBANAN_SITE_IDS = {
+    7982: "Arninge_station",         # stop_areas: 7035, 61060
+    9666: "Hägernäs",                # stop_areas: 7031, 61748
+    9667: "Viggbyholm",              # stop_areas: 7021, 61717, 17456
+    9668: "Galoppfältet",            # stop_areas: 7011, 61503
+    9669: "Täby_centrum",            # stop_areas: 7001, 17452, 61011
+    9633: "Roslags_Näsby",           # stop_areas: 7191, 17418, 60237
+    9634: "Enebyberg",               # stop_areas: 7181, 17416
+    9635: "Djursholms_Ekeby",        # stop_areas: 7171, 60236, 60633, 17414
+    9636: "Bråvallavägen",           # stop_areas: 6661, 60233, 17412
+    9637: "Djursholms_Ösby",         # stop_areas: 6651, 50371, 17410
+    9638: "Mörby_station",           # stop_areas: 7141, 60314
+    9200: "Mörby_centrum",           # stop_areas: 2301, 60014, 60017
+    9201: "Danderyds_sjukhus",       # stop_areas: 2251, 50366
+    9203: "Universitetet",           # stop_areas: 2231, 7111, 51556, 60301, 17398
+    9600: "Stockholms_östra",        # stop_areas: 2221, 6601, 10194, 60080, 17399 (Rail terminus)
+}
+
+# Bus stops and bus-served locations
+BUS_SITE_IDS = {
+    7981: "Arninge",                         # stop_areas: 7035, 61060 (bus terminal near rail)
+    2200: "Roslags_Näsby_trafikplats",       # stop_areas: 60011 (Mycronic/traffic junction)
+    2107: "Stocksunds_station",              # stop_areas: 7131, 60601
+    1090: "Roslagstull_Ingemarsgatan",       # stop_areas: 10575
+    # 1095: "Roslagstull_Roslagsvägen",        # stop_areas: 10101, 10240
+    1177: "Universitetet_södra",             # stop_areas: 69011
+    5268: "Albano",                          # stop_areas: 51091
+    9204: "Tekniska_högskolan",              # stop_areas: 2221, 6601, 10194, 60080, 17399 (Metro station with bus)
+}
+
 # TODO: add bus lines
 LINES = [28]
 
