@@ -12,6 +12,7 @@ import time
 
 BASE_URL = "https://transport.integration.sl.se/v1/sites/{siteId}/departures"
 
+# TODO: select the interesting lines
 SITE_IDS = {
     7981: "Arninge",
     9600: "Stockholms_östra",
@@ -53,8 +54,7 @@ BUS_SITE_IDS = {
     9204: "Tekniska_högskolan",  # stop_areas: 2221, 6601, 10194, 60080, 17399 (Metro station with bus)
 }
 
-# TODO: add bus lines
-LINES = [28]
+LINES = [28, 624, 626, 628, 629, 670, 676, 680, 694, 699]
 
 MODES = [
     "BUS",
