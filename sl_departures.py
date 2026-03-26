@@ -125,6 +125,7 @@ for site_id, site_name in SITE_IDS.items():
                 "transport_mode": transport_mode,
                 "delay": delay,
                 "destination": destination,
+                "direction_code": dep.get("direction_code"),
                 "site_id": site_id,
                 "journey_id": dep.get("journey").get("id"),
             }
@@ -136,11 +137,16 @@ for site_id, site_name in SITE_IDS.items():
 
     if os.path.exists(csv_file):
         df_existing = pd.read_csv(csv_file)
-        df_combined = pd.concat([df_existing, df_new], ignore_index=True)
 
-        # Remove duplicates based on journey_id, keeping the last (newest) entry from df_new
-        df_combined = df_combined.drop_duplicates(subset=["journey_id"], keep="last")
-        df_combined.to_csv(csv_file, index=False)
+        # Only combine if df_existing is not empty
+        if not df_existing.empty:
+            df_combined = pd.concat([df_existing, df_new], ignore_index=True)
+            df_combined = df_combined.drop_duplicates(
+                subset=["journey_id"], keep="last"
+            )
+            df_combined.to_csv(csv_file, index=False)
+        else:
+            df_new.to_csv(csv_file, index=False)
     else:
         df_new.to_csv(csv_file, index=False)
 
