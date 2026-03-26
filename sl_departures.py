@@ -12,15 +12,17 @@ import time
 
 BASE_URL = "https://transport.integration.sl.se/v1/sites/{siteId}/departures"
 
-# TODO: select the interesting lines
 SITE_IDS = {
+    7982: "Arninge_station",
     7981: "Arninge",
-    9600: "Stockholms_östra",
-    9200: "Mörby_centrum",
-    9638: "Mörby_station",
-    9201: "Danderyds_sjukhus",
     9633: "Roslags_Näsby",
     2200: "Roslags_Näsby_trafikplats",
+    9638: "Mörby_station",
+    9201: "Danderyds_sjukhus",
+    9203: "Universitetet",
+    1177: "Universitetet_södra",
+    9600: "Stockholms_östra",
+    9204: "Tekniska_högskolan",
 }
 
 # Roslagsbanan stations
@@ -54,12 +56,9 @@ BUS_SITE_IDS = {
     9204: "Tekniska_högskolan",  # stop_areas: 2221, 6601, 10194, 60080, 17399 (Metro station with bus)
 }
 
-LINES = [28, 624, 626, 628, 629, 670, 676, 680, 694, 699]
+LINES = [14, 28, 624, 626, 628, 629, 670, 676, 680, 694, 699]
 
-MODES = [
-    "BUS",
-    "TRAM",  # Roslagsbanan is designated as a tram
-]
+MODES = ["BUS", "TRAM", "METRO"]  # Roslagsbanan is designated as a tram
 
 # Add delay between requests to avoid hitting API rate limits
 DELAY_BETWEEN_REQUESTS_SEC = 1
