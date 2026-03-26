@@ -64,10 +64,17 @@ MODES = ["BUS", "TRAM", "METRO"]  # Roslagsbanan is designated as a tram
 DELAY_BETWEEN_REQUESTS_SEC = 1
 
 
+def log(message: str):
+    """Log a message with a timestamp."""
+    print(f"{datetime.now()}: {message}")
+
+
 def fetch_departures(
     site_id: int, lines: list[int] | None = None, modes: list[str] | None = None
 ):
     """Fetch departures for a given site ID, optionally filtering by lines and modes."""
+
+    log(f"Fetching departures for site ID {site_id}...")
 
     response = requests.get(
         BASE_URL.format(siteId=site_id),
@@ -149,4 +156,8 @@ for site_id, site_name in SITE_IDS.items():
     else:
         df_new.to_csv(csv_file, index=False)
 
+    log(f"Wrote data to {csv_file}")
+
     time.sleep(DELAY_BETWEEN_REQUESTS_SEC)
+
+log("Done!")
