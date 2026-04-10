@@ -1,4 +1,8 @@
 venv/
+.env
+
+# GTFS files
+sl/*.txt
 
 # Data files
 *.json

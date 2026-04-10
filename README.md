@@ -14,7 +14,19 @@ Comparing Roslagsbanan to buses from a reliability perspective.
 
 ### Data Fetching
 
-#### Departure delays: 
+#### Delays (GTFS)
+
+0. Make sure to have download the static GTFS data into the `sl` directory from: 
+   ```
+   https://opendata.samtrafiken.se/gtfs/sl/sl.zip?key={apikey}
+   ```
+1. Run the following command to fetch real-time delay data and save it to `trip_updates.json`:
+   ```bash
+   python3 sl_realtime.py
+   ```
+
+
+#### Departure delays (REST API)
 
 Run
 ```bash 
