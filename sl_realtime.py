@@ -8,7 +8,6 @@ from google.transit import gtfs_realtime_pb2
 from datetime import datetime, timezone
 
 ROUTES = ["14", "28", "624", "626", "628", "629", "670", "676", "680", "694", "699"]
-ROUTES = ["28"]
 
 load_dotenv()
 API_KEY = os.getenv("REALTIME_APIKEY", "")
