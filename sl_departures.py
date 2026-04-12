@@ -146,7 +146,10 @@ for site_id, site_name in SITE_IDS.items():
     df_new = pd.DataFrame(rows)
 
     if os.path.exists(csv_file):
-        df_existing = pd.read_csv(csv_file)
+        try:
+            df_existing = pd.read_csv(csv_file)
+        except pd.errors.EmptyDataError:
+            df_existing = pd.DataFrame()
 
         # Only combine if df_existing is not empty
         if not df_existing.empty:
