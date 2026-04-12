@@ -21,6 +21,10 @@ SITE_IDS = {
     9201: "Danderyds_sjukhus",
     9203: "Universitetet",
     1177: "Universitetet_södra",
+    1096: "Albano",
+    1095: "Roslagstull_Roslagsvägen",
+    1090: "Roslagstull_Ingemarsgatan",
+    1084: "Roslagstull_Valhallavägen",
     9600: "Stockholms_östra",
     9204: "Tekniska_högskolan",
 }
