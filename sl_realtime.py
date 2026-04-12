@@ -5,6 +5,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from google.protobuf.json_format import MessageToDict
 from google.transit import gtfs_realtime_pb2
+from datetime import datetime, timezone
 
 ROUTES = ["14", "28", "624", "626", "628", "629", "670", "676", "680", "694", "699"]
 ROUTES = ["28"]
@@ -45,8 +46,13 @@ def build_stop_id_to_name(stops_file: str) -> dict[str, str]:
     return dict(zip(stops["stop_id"], stops["stop_name"]))
 
 
+def unix_time_to_iso(unix_time: int | str) -> str:
+    """Convert a Unix timestamp to ISO format in current timezone"""
+    return datetime.fromtimestamp(int(unix_time)).astimezone().isoformat()
+
+
 def extract_stop_time_rows(data: dict) -> list[dict]:
-    """Extract stop time update rows from the GTFS-RT feed data."""
+    """Extract stop time update rows from the GTFS-RT feed data"""
     rows = []
     for entity in data.get("entity", []):
         tu = entity.get("trip_update", {})
@@ -71,7 +77,8 @@ def extract_stop_time_rows(data: dict) -> list[dict]:
                 {
                     "trip_id": trip_id,
                     "start_date": start_date,
-                    "timestamp": timestamp,
+                    "timestamp_unix": timestamp,
+                    "timestamp": unix_time_to_iso(timestamp),
                     "route_short_name": route_short_name,
                     "direction_id": direction_id,
                     "last_stop": last_stop,
@@ -89,7 +96,7 @@ def extract_stop_time_rows(data: dict) -> list[dict]:
 def save_stop_time_updates(rows: list[dict]) -> None:
     """
     Save stop time updates to CSV files, one per route.
-    Deduplicate rows based on trip_id, stop_id, and start_date, keeping the latest entry based on timestamp.
+    Deduplicate rows based on trip_id, stop_id, and start_date, keeping the latest entry based on timestamp
     """
     os.makedirs(CSV_DIR, exist_ok=True)
     new_df = pd.DataFrame(rows)
