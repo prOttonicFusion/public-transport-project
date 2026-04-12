@@ -7,7 +7,21 @@ from google.protobuf.json_format import MessageToDict
 from google.transit import gtfs_realtime_pb2
 from datetime import datetime
 
-ROUTES = ["14", "28", "624", "626", "628", "629", "670", "676", "680", "694", "699"]
+ROUTES = [
+    "14",
+    "28",
+    "624",
+    "626",
+    "628",
+    "629",
+    "670",
+    "670X",
+    "676",
+    "676X",
+    "680",
+    "694",
+    "699",
+]
 
 load_dotenv()
 API_KEY = os.getenv("REALTIME_APIKEY", "")
@@ -148,6 +162,9 @@ def main():
                 if stop_name:
                     stop_update["stop_name"] = stop_name
 
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
     if ROUTES:
         data["entity"] = [
             e
@@ -155,9 +172,6 @@ def main():
             if e.get("trip_update", {}).get("trip", {}).get("route_short_name")
             in ROUTES
         ]
-
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
 
     log(f"Wrote {len(data.get('entity', []))} entities to {OUTPUT_FILE}")
 
