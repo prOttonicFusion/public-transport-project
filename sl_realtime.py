@@ -19,6 +19,11 @@ STOPS_FILE = "sl/stops.txt"
 CSV_DIR = "stop_times"
 
 
+def log(message: str):
+    """Log a message with a timestamp."""
+    print(f"{datetime.now()}: {message}")
+
+
 def build_trip_to_route_name(
     trips_file: str, routes_file: str
 ) -> dict[str, dict[str, str]]:
@@ -154,7 +159,7 @@ def main():
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-    print(f"Wrote {len(data.get('entity', []))} entities to {OUTPUT_FILE}")
+    log(f"Wrote {len(data.get('entity', []))} entities to {OUTPUT_FILE}")
 
     rows = extract_stop_time_rows(data)
     save_stop_time_updates(rows)
