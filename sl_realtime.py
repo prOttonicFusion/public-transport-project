@@ -5,7 +5,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from google.protobuf.json_format import MessageToDict
 from google.transit import gtfs_realtime_pb2
-from datetime import datetime, timezone
+from datetime import datetime
 
 ROUTES = ["14", "28", "624", "626", "628", "629", "670", "676", "680", "694", "699"]
 
