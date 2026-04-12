@@ -58,6 +58,12 @@ def build_trip_to_route_name(
     }
 
 
+def build_route_id_to_name(routes_file: str) -> dict[str, str]:
+    """Build a mapping from route_id to route_short_name"""
+    routes = pd.read_csv(routes_file, dtype=str, usecols=["route_id", "route_short_name"])
+    return dict(zip(routes["route_id"], routes["route_short_name"]))
+
+
 def build_stop_id_to_name(stops_file: str) -> dict[str, str]:
     """Build a mapping from stop_id to stop_name"""
     stops = pd.read_csv(stops_file, dtype=str, usecols=["stop_id", "stop_name"])
@@ -80,6 +86,7 @@ def extract_stop_time_rows(data: dict) -> list[dict]:
         timestamp = tu.get("timestamp")
         route_short_name = trip.get("route_short_name")
         direction_id = trip.get("direction_id")
+        schedule_relationship = trip.get("schedule_relationship")
         stop_updates = tu.get("stop_time_update", [])
 
         # Determine last stop based on the last stop update's stop name (if available)
@@ -99,6 +106,7 @@ def extract_stop_time_rows(data: dict) -> list[dict]:
                     "timestamp": unix_time_to_iso(timestamp),
                     "route_short_name": route_short_name,
                     "direction_id": direction_id,
+                    "schedule_relationship": schedule_relationship,
                     "last_stop": last_stop,
                     "stop_name": stu.get("stop_name"),
                     "stop_id": stu.get("stop_id"),
@@ -143,6 +151,7 @@ def fetch_trip_updates(api_key: str) -> dict:
 
 def main():
     trip_to_route = build_trip_to_route_name(TRIPS_FILE, ROUTES_FILE)
+    route_id_to_name = build_route_id_to_name(ROUTES_FILE)
     stop_id_to_name = build_stop_id_to_name(STOPS_FILE)
 
     data = fetch_trip_updates(API_KEY)
@@ -155,6 +164,15 @@ def main():
             if trip_info:
                 trip_update["trip"]["route_short_name"] = trip_info["route_short_name"]
                 trip_update["trip"]["direction_id"] = trip_info["direction_id"]
+
+        # Some cancelled trips may only have a route_id and no trip_id
+        if not trip_update.get("trip", {}).get("route_short_name"):
+            route_id = trip_update.get("trip", {}).get("route_id")
+            if route_id:
+                route_name = route_id_to_name.get(route_id)
+                if route_name:
+                    trip_update["trip"]["route_short_name"] = route_name
+
         for stop_update in trip_update.get("stop_time_update", []):
             stop_id = stop_update.get("stop_id")
             if stop_id:
