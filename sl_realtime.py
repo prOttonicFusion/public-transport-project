@@ -19,16 +19,28 @@ STOPS_FILE = "sl/stops.txt"
 CSV_DIR = "stop_times"
 
 
-def build_trip_to_route_name(trips_file: str, routes_file: str) -> dict[str, str]:
-    trips = pd.read_csv(trips_file, dtype=str, usecols=["route_id", "trip_id"])
+def build_trip_to_route_name(
+    trips_file: str, routes_file: str
+) -> dict[str, dict[str, str]]:
+    """Build a mapping from trip_id to route details"""
+    trips = pd.read_csv(
+        trips_file, dtype=str, usecols=["route_id", "trip_id", "direction_id"]
+    )
     routes = pd.read_csv(
         routes_file, dtype=str, usecols=["route_id", "route_short_name"]
     )
     merged = trips.merge(routes, on="route_id", how="left")
-    return dict(zip(merged["trip_id"], merged["route_short_name"]))
+    return {
+        row["trip_id"]: {
+            "route_short_name": row["route_short_name"],
+            "direction_id": row["direction_id"],
+        }
+        for _, row in merged.iterrows()
+    }
 
 
 def build_stop_id_to_name(stops_file: str) -> dict[str, str]:
+    """Build a mapping from stop_id to stop_name"""
     stops = pd.read_csv(stops_file, dtype=str, usecols=["stop_id", "stop_name"])
     return dict(zip(stops["stop_id"], stops["stop_name"]))
 
@@ -43,7 +55,16 @@ def extract_stop_time_rows(data: dict) -> list[dict]:
         start_date = trip.get("start_date")
         timestamp = tu.get("timestamp")
         route_short_name = trip.get("route_short_name")
-        for stu in tu.get("stop_time_update", []):
+        direction_id = trip.get("direction_id")
+        stop_updates = tu.get("stop_time_update", [])
+
+        # Determine last stop based on the last stop update's stop name (if available)
+        last_stop = None
+        if stop_updates:
+            last_stop = max(stop_updates, key=lambda s: s.get("stop_sequence", 0))
+            last_stop = last_stop.get("stop_name")
+
+        for stu in stop_updates:
             arrival = stu.get("arrival", {})
             departure = stu.get("departure", {})
             rows.append(
@@ -52,6 +73,8 @@ def extract_stop_time_rows(data: dict) -> list[dict]:
                     "start_date": start_date,
                     "timestamp": timestamp,
                     "route_short_name": route_short_name,
+                    "direction_id": direction_id,
+                    "last_stop": last_stop,
                     "stop_name": stu.get("stop_name"),
                     "stop_id": stu.get("stop_id"),
                     "arrival_time": arrival.get("time"),
@@ -103,9 +126,10 @@ def main():
         trip_update = entity.get("trip_update", {})
         trip_id = trip_update.get("trip", {}).get("trip_id")
         if trip_id:
-            route_name = trip_to_route.get(trip_id)
-            if route_name:
-                trip_update["trip"]["route_short_name"] = route_name
+            trip_info = trip_to_route.get(trip_id)
+            if trip_info:
+                trip_update["trip"]["route_short_name"] = trip_info["route_short_name"]
+                trip_update["trip"]["direction_id"] = trip_info["direction_id"]
         for stop_update in trip_update.get("stop_time_update", []):
             stop_id = stop_update.get("stop_id")
             if stop_id:
