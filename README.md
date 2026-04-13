@@ -14,7 +14,22 @@ Comparing Roslagsbanan to buses from a reliability perspective.
 
 ### Data Fetching
 
-#### Departure delays: 
+#### Departure & Arrival Delays (GTFS)
+
+This script fetches trip updates from the GTFS real-time API and filters for specific routes. Static GTFS data is used to map trip IDs in the update feed to route names and directions.
+
+0. Make sure to have download the static GTFS data into the `sl` directory from: 
+   ```
+   https://opendata.samtrafiken.se/gtfs/sl/sl.zip?key={apikey}
+   ```
+1. Run the following command to fetch real-time delay data and save it to `trip_updates.json`:
+   ```bash
+   python3 sl_realtime.py
+   ```
+
+**Note:** The script will append to existing CSV files if they already exist, allowing you to accumulate data over time.
+
+#### Departure delays (REST API)
 
 Run
 ```bash 
